@@ -33,19 +33,30 @@ class TrackingAnything():
         masks = []
         logits = []
         overlays = []
+        ious = []
         for i in tqdm(range(len(images)), desc="Tracking the provided template mask through images"):
             if i == 0:           
-                mask, logit, overlay = self.xmem.track(images[i], template_mask)
-                masks.append(mask)
-                logits.append(logit)
-                overlays.append(overlay)
+                mask, logit, inpainted_overlay = self.xmem.track(images[i], template_mask)
             else:
-                mask, logit, overlay = self.xmem.track(images[i])
-                masks.append(mask)
-                logits.append(logit)
-                overlays.append(overlay)
-        return masks, logits, overlays
+                mask, logit, inpainted_overlay = self.xmem.track(images[i])
+
+            pred_iou = iou(mask, template_mask)
+            # ious.append(pred_iou)
+            # print(torch.unique(logit[0]))
+            # print(torch.unique(logit[1]))
+            # print(pred_iou)
+            # print(torch.unique(mask))
+            masks.append(mask)
+            logits.append(logit.cpu().numpy())
+            overlays.append(inpainted_overlay)
+            ious.append(pred_iou)
+           
+        return masks, logits, overlays, ious
     
+def iou(pred_mask, gt_mask):
+    intersection = np.logical_and(pred_mask, gt_mask)
+    union = np.logical_or(pred_mask, gt_mask)
+    return np.sum(intersection) / np.sum(union)
 
 def generate_video_from_frames(frames, output_path, fps=30):
     """
@@ -118,6 +129,3 @@ if __name__ == "__main__":
 
         
         
-    
-    
-    
