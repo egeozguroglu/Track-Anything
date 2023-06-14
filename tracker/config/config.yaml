@@ -3,7 +3,7 @@ benchmark: False
 disable_long_term: False
 max_mid_term_frames: 10
 min_mid_term_frames: 5
-max_long_term_elements: 1000
+max_long_term_elements: 15000
 num_prototypes: 128
 top_k: 30
 mem_every: 5
